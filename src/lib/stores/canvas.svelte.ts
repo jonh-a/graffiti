@@ -43,7 +43,7 @@ export class CanvasStore {
         (payload) => {
           console.log('Canvas updated:', payload);
           const newPixels = (payload.new.pixels as CanvasPixels) || {};
-          this.#pixels = { ...newPixels };
+          this.#pixels = { ...this.#pixels, ...newPixels };
           this.#version++;
         }
       )

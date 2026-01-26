@@ -47,12 +47,13 @@ export class UserStore {
     } else if (dbUser) {
       this.#id = dbUser.id;
       this.#ink = dbUser.ink;
-      localStorage.setItem('graffiti-wall-user', JSON.stringify({
-        id: dbUser.id,
-        ink: dbUser.ink,
-        joinedAt: dbUser.joined_at,
-      }));
     }
+
+    localStorage.setItem('graffiti-wall-user', JSON.stringify({
+      id: error ? user.id : dbUser.id,
+      ink: error ? user.ink : dbUser.ink,
+      joinedAt: error ? user.joinedAt : dbUser.joined_at,
+    }));
 
     this.#isLoading = false;
 

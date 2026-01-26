@@ -61,7 +61,6 @@
     if (Object.keys(pendingPixels).length === 0 || !userId) return;
 
     const pixelsToSend = { ...pendingPixels };
-    pendingPixels = {};
 
     try {
       const { error: canvasError } = await supabase.rpc('update_canvas_pixels', {
@@ -70,7 +69,7 @@
 
       if (canvasError) {
         console.error('Error updating canvas:', canvasError);
-        const updatedPixels = { ...canvasPixels, ...pixelsToSend };
+        const updatedPixels = { ...canvasStore.pixels, ...pixelsToSend };
         const { error: fallbackError } = await supabase
           .from('canvas_state')
           .update({
@@ -81,9 +80,17 @@
 
         if (fallbackError) {
           console.error('Fallback update failed:', fallbackError);
-          pendingPixels = { ...pendingPixels, ...pixelsToSend };
+          return;
         }
       }
+
+      setTimeout(() => {
+        Object.keys(pixelsToSend).forEach(key => {
+          if (canvasStore.pixels[key] === pixelsToSend[key]) {
+            delete pendingPixels[key];
+          }
+        });
+      }, 100);
 
       await supabase
         .from('users')
@@ -94,26 +101,39 @@
         .eq('id', userId);
     } catch (error) {
       console.error('Error in batch update:', error);
-      pendingPixels = { ...pendingPixels, ...pixelsToSend };
     }
   }
 
   function handleDrawPixel(x: number, y: number, pixelColor: string) {
     if (ink <= 0 || !userId || !ctx) return false;
 
-    if (lastPixel && lastPixel.x === x && lastPixel.y === y) {
-      return false;
+    if (lastPixel && (lastPixel.x !== x || lastPixel.y !== y)) {
+      const dx = x - lastPixel.x;
+      const dy = y - lastPixel.y;
+      const steps = Math.max(Math.abs(dx), Math.abs(dy));
+      
+      for (let i = 0; i <= steps; i++) {
+        const t = steps > 0 ? i / steps : 0;
+        const px = Math.round(lastPixel.x + dx * t);
+        const py = Math.round(lastPixel.y + dy * t);
+        const pixelKey = `${px},${py}`;
+        
+        if (pendingPixels[pixelKey] !== pixelColor) {
+          drawPixel(ctx, px, py, pixelColor);
+          canvasStore.addPixel(px, py, pixelColor);
+          pendingPixels[pixelKey] = pixelColor;
+          userStore.consumeInk(1);
+        }
+      }
+    } else {
+      const pixelKey = `${x},${y}`;
+      drawPixel(ctx, x, y, pixelColor);
+      canvasStore.addPixel(x, y, pixelColor);
+      pendingPixels[pixelKey] = pixelColor;
+      userStore.consumeInk(1);
     }
 
-    const pixelKey = `${x},${y}`;
-
-    drawPixel(ctx, x, y, pixelColor);
-    canvasStore.addPixel(x, y, pixelColor);
-    pendingPixels[pixelKey] = pixelColor;
-
-    userStore.consumeInk(1);
     lastPixel = { x, y };
-
     scheduleBatch();
     return true;
   }
