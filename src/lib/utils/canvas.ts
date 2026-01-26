@@ -5,8 +5,11 @@ export function getPixelCoordinates(
   canvas: HTMLCanvasElement
 ): { x: number; y: number } | null {
   const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) / SCALE);
-  const y = Math.floor((e.clientY - rect.top) / SCALE);
+  // Account for CSS scaling - calculate based on rendered size vs logical canvas size
+  const scaleX = CANVAS_SIZE / rect.width;
+  const scaleY = CANVAS_SIZE / rect.height;
+  const x = Math.floor((e.clientX - rect.left) * scaleX);
+  const y = Math.floor((e.clientY - rect.top) * scaleY);
 
   if (x < 0 || x >= CANVAS_SIZE || y < 0 || y >= CANVAS_SIZE) return null;
 
