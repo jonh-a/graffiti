@@ -7,6 +7,7 @@
   import { supabase } from './lib/supabase';
 
   let canvasElement: HTMLCanvasElement;
+  let colorPickerElement: HTMLInputElement;
   let ctx: CanvasRenderingContext2D | null = null;
   let color = $state('#000000');
   let isDrawing = $state(false);
@@ -176,7 +177,6 @@
     flushPixelBatch();
   }
 
-  // Touch event handlers for mobile
   function handleTouchStart(e: TouchEvent) {
     e.preventDefault();
     if (ink <= 0 || isLoading) return;
@@ -253,6 +253,26 @@
           aria-label={`Select color ${c}`}
         ></button>
       {/each}
+      <label class="rainbow-button-wrapper">
+        <button
+          class="color-button rainbow-button"
+          onclick={() => colorPickerElement?.click()}
+          ontouchstart={(e) => {
+            e.stopPropagation();
+            colorPickerElement?.click();
+          }}
+          aria-label="Choose custom color"
+          title="Choose custom color"
+        >
+        </button>
+        <input
+          type="color"
+          bind:this={colorPickerElement}
+          bind:value={color}
+          class="color-picker-input"
+          aria-label="Color picker"
+        />
+      </label>
     </div>
 
     <canvas
@@ -329,6 +349,54 @@
 
   .color-button.selected {
     border: 3px solid white;
+  }
+
+  .rainbow-button-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .rainbow-button {
+    touch-action: auto;
+    background: linear-gradient(90deg, 
+      #ff0000 0%, 
+      #ff7f00 14%, 
+      #ffff00 28%, 
+      #00ff00 42%, 
+      #0000ff 57%, 
+      #4b0082 71%, 
+      #9400d3 85%, 
+      #ff0000 100%);
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .color-picker-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 1;
+  }
+
+  @media (max-width: 768px) {
+    .color-picker-input {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .color-picker-input {
+      width: 40px;
+      height: 40px;
+    }
   }
 
   .canvas {

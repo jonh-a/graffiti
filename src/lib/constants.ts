@@ -1,6 +1,6 @@
 export const CANVAS_SIZE = 150;
 export const SCALE = 3;
-export const MAX_INK = 250;
+export const MAX_INK = 1000;
 export const BATCH_DELAY = 100;
 export const REGENERATION_RATE = 5000;
 

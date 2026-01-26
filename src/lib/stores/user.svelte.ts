@@ -81,7 +81,7 @@ export class UserStore {
     this.#regenerationTimer = setInterval(() => {
       if (!this.#id) return;
         
-      this.#ink = Math.min(this.#ink + 1, MAX_INK);
+      this.#ink = Math.min(this.#ink + 100, MAX_INK);
       this.#saveToLocalStorage();
         
       supabase
