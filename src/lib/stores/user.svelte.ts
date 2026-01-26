@@ -14,30 +14,19 @@ export class UserStore {
   #isLoading = $state(true);
   #regenerationTimer: ReturnType<typeof setInterval> | null = null;
 
-  get id() {
-    return this.#id;
-  }
+  get id() { return this.#id; }
+  
+  get ink() { return this.#ink; }
 
-  get ink() {
-    return this.#ink;
-  }
-
-  get isLoading() {
-    return this.#isLoading;
-  }
+  get isLoading() { return this.#isLoading; }
 
   async initialize() {
-    const stored = localStorage.getItem('graffiti-wall-user');
-    let user: User;
+    const stored = JSON.parse(localStorage.getItem('graffiti-wall-user') || '{}');
 
-    if (stored) {
-      try {
-        user = JSON.parse(stored);
-      } catch {
-        user = { id: uuidv4(), ink: MAX_INK, joinedAt: new Date().toISOString() };
-      }
-    } else {
-      user = { id: uuidv4(), ink: MAX_INK, joinedAt: new Date().toISOString() };
+    let user: User = {
+      id: stored.id ?? uuidv4(),
+      ink: stored.ink ?? MAX_INK,
+      joinedAt: stored.joinedAt ?? new Date().toISOString(),
     }
 
     const { data: dbUser, error } = await supabase

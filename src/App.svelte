@@ -17,12 +17,13 @@
   const ink = $derived(userStore.ink);
   const userId = $derived(userStore.id);
   const isLoading = $derived(userStore.isLoading);
-  const canvasPixels = $derived(canvasStore.pixels);
   const inkPercentage = $derived((ink / MAX_INK) * 100);
 
   $effect(() => {
-    if (ctx && canvasPixels && !isLoading) {
-      renderCanvas(ctx, canvasPixels);
+    const pixels = canvasStore.pixels;
+    if (ctx && pixels && !isLoading) {
+      console.log('Rendering canvas with pixels:', Object.keys(pixels).length);
+      renderCanvas(ctx, pixels);
     }
   });
 

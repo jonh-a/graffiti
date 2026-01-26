@@ -5,8 +5,10 @@ type CanvasPixels = Record<string, string>;
 export class CanvasStore {
   #pixels = $state<CanvasPixels>({});
   #channel: ReturnType<typeof supabase.channel> | null = null;
+  #version = $state(0);
 
   get pixels() {
+    this.#pixels;
     return this.#pixels;
   }
 
@@ -25,7 +27,7 @@ export class CanvasStore {
     this.#pixels = (data?.pixels as CanvasPixels) || {};
   }
 
-  subscribeToUpdates() {
+  async subscribeToUpdates() {
     if (this.#channel) return;
 
     this.#channel = supabase
@@ -39,7 +41,10 @@ export class CanvasStore {
           filter: 'id=eq.1'
         },
         (payload) => {
-          this.#pixels = (payload.new.pixels as CanvasPixels) || {};
+          console.log('Canvas updated:', payload);
+          const newPixels = (payload.new.pixels as CanvasPixels) || {};
+          this.#pixels = { ...newPixels };
+          this.#version++;
         }
       )
       .subscribe();
