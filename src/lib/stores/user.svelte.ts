@@ -20,6 +20,17 @@ export class UserStore {
 
   get isLoading() { return this.#isLoading; }
 
+  #saveToLocalStorage() {
+    if (!this.#id) return;
+    localStorage.setItem('graffiti-wall-user', JSON.stringify({
+      id: this.#id,
+      ink: this.#ink,
+      joinedAt: localStorage.getItem('graffiti-wall-user') 
+        ? JSON.parse(localStorage.getItem('graffiti-wall-user')!).joinedAt 
+        : new Date().toISOString(),
+    }));
+  }
+
   async initialize() {
     const stored = JSON.parse(localStorage.getItem('graffiti-wall-user') || '{}');
 
@@ -49,12 +60,7 @@ export class UserStore {
       this.#ink = dbUser.ink;
     }
 
-    localStorage.setItem('graffiti-wall-user', JSON.stringify({
-      id: error ? user.id : dbUser.id,
-      ink: error ? user.ink : dbUser.ink,
-      joinedAt: error ? user.joinedAt : dbUser.joined_at,
-    }));
-
+    this.#saveToLocalStorage();
     this.#isLoading = false;
 
     supabase
@@ -67,6 +73,7 @@ export class UserStore {
       }, (payload) => {
         const updatedUser = payload.new as { ink: number };
         this.#ink = updatedUser.ink;
+        this.#saveToLocalStorage();
         }
       )
       .subscribe();
@@ -75,6 +82,7 @@ export class UserStore {
       if (!this.#id) return;
         
       this.#ink = Math.min(this.#ink + 1, MAX_INK);
+      this.#saveToLocalStorage();
         
       supabase
         .from('users')
@@ -88,6 +96,7 @@ export class UserStore {
 
   consumeInk(amount: number) {
     this.#ink = Math.max(0, this.#ink - amount);
+    this.#saveToLocalStorage();
   }
 
   destroy() {

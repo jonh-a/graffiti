@@ -35,10 +35,8 @@ export function renderCanvas(
   ctx: CanvasRenderingContext2D,
   pixels: Record<string, string>
 ): void {
-  // Clear canvas first
   ctx.clearRect(0, 0, CANVAS_SIZE * SCALE, CANVAS_SIZE * SCALE);
   
-  // Draw all pixels
   Object.entries(pixels).forEach(([key, color]) => {
     const [x, y] = key.split(',').map(Number);
     drawPixel(ctx, x, y, color);
