@@ -22,8 +22,8 @@
   $effect(() => {
     const pixels = canvasStore.pixels;
     if (ctx && pixels && !isLoading) {
-      console.log('Rendering canvas with pixels:', Object.keys(pixels).length);
-      renderCanvas(ctx, pixels);
+      const allPixels = { ...pixels, ...pendingPixels };
+      renderCanvas(ctx, allPixels);
     }
   });
 
