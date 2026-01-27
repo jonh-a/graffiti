@@ -213,7 +213,6 @@
   function getPixelCoordinatesFromPoint(clientX: number, clientY: number) {
     if (!canvasElement) return null;
     const rect = canvasElement.getBoundingClientRect();
-    // Calculate based on actual rendered size vs canvas logical size
     const scaleX = CANVAS_SIZE / rect.width;
     const scaleY = CANVAS_SIZE / rect.height;
     const x = Math.floor((clientX - rect.left) * scaleX);
@@ -226,15 +225,12 @@
 </script>
 
 {#if isLoading}
-  <div>Loading...</div>
+  <div class="loading">Loading...</div>
 {:else}
   <div class="container">
     <h2 class="header">Graffiti Wall</h2>
 
-    <p class="description">Vandalize the wall. Ink regenerates over time.
-      <br>
-      I'm not responsible for whatever's on here.
-    </p>
+    <p class="description">Vandalize the wall. Ink regenerates over time.</p>
 
     <div class="ink-meter">
       <div 
@@ -310,13 +306,13 @@
     margin: 0;
   }
 
-  .description {
+  .description, .loading {
     font-family: 'Pixelify Sans', sans-serif;
     font-size: 1rem;
     margin: 0;
     text-align: center;
   }
-
+  
   .ink-meter {
     width: 100%;
     max-width: 300px;

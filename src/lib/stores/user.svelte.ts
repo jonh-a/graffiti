@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../supabase';
-import { MAX_INK, REGENERATION_RATE } from '../constants';
+import { MAX_INK, REGENERATION_RATE, REGENERATION_AMOUNT } from '../constants';
 
 interface User {
   id: string;
@@ -15,7 +15,7 @@ export class UserStore {
   #regenerationTimer: ReturnType<typeof setInterval> | null = null;
 
   get id() { return this.#id; }
-  
+
   get ink() { return this.#ink; }
 
   get isLoading() { return this.#isLoading; }
@@ -81,7 +81,7 @@ export class UserStore {
     this.#regenerationTimer = setInterval(() => {
       if (!this.#id) return;
         
-      this.#ink = Math.min(this.#ink + 100, MAX_INK);
+      this.#ink = Math.min(this.#ink + REGENERATION_AMOUNT, MAX_INK);
       this.#saveToLocalStorage();
         
       supabase
