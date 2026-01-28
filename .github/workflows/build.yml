@@ -19,8 +19,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: build & push image
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@v6.0.0
         with:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/graffiti:latest
+          build-args: |
+            VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
